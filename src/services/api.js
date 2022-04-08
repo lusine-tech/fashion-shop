@@ -147,18 +147,26 @@ export async function confirmAddProduct(productObj, userId, token) {
 }
 
 export async function imgUpdate(productId, file, token, userId) {
+    console.log("imgUpdatefile", file);
   const formData = new FormData();
-  formData.append("image", file);
-  console.log(formData);
+    formData.append("image", file
+    // { type: "multipart/form-data" }
+    );
+
+  for (var key of formData.entries()) {
+    console.log(key[0] + ", " + key[1]);
+  }
+
 
   try {
     const response = await fetch(`${apiURL}image/add/${productId}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
-        "content-type": "multipart/form-data",
+        // Authorization: `Bearer ${token}`,
+        // "Content-Type": "multipart/form-data",
         userId: userId,
       },
+
       body: formData,
     });
     return response.json();
