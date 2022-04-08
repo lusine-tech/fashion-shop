@@ -4,7 +4,8 @@ import { useAuth0 } from "@auth0/auth0-react";
 import AddProductForm from "./AddProductForm";
 import { confirmAddProduct } from "../../services/api";
 
-function AddProduct() {
+function AddProduct({setResponseInfo}) {
+  
   const { error, isAuthenticated, isLoading, user, getAccessTokenSilently } =
     useAuth0();
   const [open, setOpen] = useState(false);
@@ -16,6 +17,7 @@ function AddProduct() {
     productCount: "",
   };
   const [options, setOptions] = useState(initFormData);
+  
 
   function changeOptions(prop) {
     setOptions({ ...options, ...prop });
@@ -38,7 +40,9 @@ function AddProduct() {
       };
 
       const orderStatus = await confirmAddProduct(productObj, userId, token);
-
+      if (orderStatus.httpStatus && orderStatus.httpStatus === "OK") {
+        setResponseInfo(orderStatus.message);
+      }
       console.log(orderStatus);
     } catch (error) {
       console.log(error);

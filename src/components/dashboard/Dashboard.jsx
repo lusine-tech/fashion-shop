@@ -8,7 +8,7 @@ import {
 } from "../../services/api";
 import { useAuth0 } from "@auth0/auth0-react";
 import { domainName } from "../../config";
-import { Table, Icon } from "semantic-ui-react";
+import { Table, Icon, Message } from "semantic-ui-react";
 import { useEffect, useState } from "react";
 import AddProduct from "../products/AddProduct";
 import Tabs from "../tabs/Tabs";
@@ -26,6 +26,7 @@ function Dashboard() {
   const [orderList, setOrderList] = useState([]);
 
   const [adminData, setAdminData] = useState({});
+  const [responseInfo, setResponseInfo] = useState("");
 
 
   async function orderShow() {
@@ -66,8 +67,8 @@ function Dashboard() {
   }
 
   useEffect(() => {
-    if (user) orderShow();
-  }, [user]);
+    if (user || responseInfo.length > 0) orderShow();
+  }, [user, responseInfo]);
   const { pendingProducts, allProducts } = adminData;
 
   async function changeStatus(status, order_id) {
@@ -87,9 +88,14 @@ function Dashboard() {
 
     async function uploadImg(file, productId) {
       try {
-        const token = await getAccessTokenSilently;
+        const token = await getAccessTokenSilently();
         const responseImg = await imgUpdate(productId, file, token, user.sub);
         console.log(responseImg);
+
+        if (responseImg.httpStatus && responseImg.httpStatus==="OK") {
+          
+          setResponseInfo(responseImg.message);
+        }
       } catch (error) {
         console.log("something went wrong", error);
       }
@@ -97,13 +103,22 @@ function Dashboard() {
       console.log("file", file);
     }
 
+    function  handleDismiss() {
+      setResponseInfo("")
+    }
+
   return (
     <div className="dashboard ui container">
+      {responseInfo.length > 0 ? (
+        <Message success onDismiss={handleDismiss} content={responseInfo} />
+      ) : (
+        ""
+      )}
       {user &&
       user[`${domainName}roles`] &&
       user[`${domainName}roles`].includes(ADMIN) ? (
         <>
-          <AddProduct />
+          <AddProduct setResponseInfo={setResponseInfo} />
           <Tabs
             uploadImg={uploadImg}
             pendingProducts={pendingProducts}
