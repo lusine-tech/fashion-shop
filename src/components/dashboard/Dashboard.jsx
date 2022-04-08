@@ -4,6 +4,7 @@ import {
   authoriseUser,
   getProducts,
   changeOrderStatus,
+  imgUpdate
 } from "../../services/api";
 import { useAuth0 } from "@auth0/auth0-react";
 import { domainName } from "../../config";
@@ -84,9 +85,17 @@ function Dashboard() {
     }
   }
 
-   async function uploadImg(file) {
-     console.log("file",file);
-   }
+    async function uploadImg(file, productId) {
+      try {
+        const token = await getAccessTokenSilently;
+        const responseImg = await imgUpdate(productId, file, token, user.sub);
+        console.log(responseImg);
+      } catch (error) {
+        console.log("something went wrong", error);
+      }
+
+      console.log("file", file);
+    }
 
   return (
     <div className="dashboard ui container">

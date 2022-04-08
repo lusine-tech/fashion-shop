@@ -85,7 +85,7 @@ export async function authoriseUser(user, token) {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json;charset=utf-8",
-        user_id: user,
+       
       },
       body: JSON.stringify({
         id,
@@ -119,7 +119,7 @@ export async function confirmOrder(user, product, token, option) {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json;charset=utf-8",
-        user_id: user,
+        userId: id,
       },
       body: JSON.stringify(body),
     });
@@ -129,13 +129,14 @@ export async function confirmOrder(user, product, token, option) {
   }
 }
 
-export async function confirmAddProduct(productObj, token) {
+export async function confirmAddProduct(productObj, userId, token) {
   try {
     const response = await fetch(`${apiURL}product`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json;charset=utf-8",
+        userId: userId,
       },
       body: JSON.stringify(productObj),
     });
@@ -145,10 +146,10 @@ export async function confirmAddProduct(productObj, token) {
   }
 }
 
-export async function imgUpdate(productId, file, token) {
-
-const formData = new FormData();
-formData.append("image", file);
+export async function imgUpdate(productId, file, token, userId) {
+  const formData = new FormData();
+  formData.append("image", file);
+  console.log(formData);
 
   try {
     const response = await fetch(`${apiURL}image/add/${productId}`, {
@@ -156,6 +157,7 @@ formData.append("image", file);
       headers: {
         Authorization: `Bearer ${token}`,
         "content-type": "multipart/form-data",
+        userId: userId,
       },
       body: formData,
     });

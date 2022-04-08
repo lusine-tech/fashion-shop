@@ -20,7 +20,7 @@ function AddProduct() {
   function changeOptions(prop) {
     setOptions({ ...options, ...prop });
   }
-  async function confirmProduct() {
+  async function confirmProduct(userId) {
     try {
       const token = await getAccessTokenSilently();
 
@@ -37,7 +37,8 @@ function AddProduct() {
         },
       };
 
-      const orderStatus = await confirmAddProduct(productObj, token);
+      const orderStatus = await confirmAddProduct(productObj, userId, token);
+
       console.log(orderStatus);
     } catch (error) {
       console.log(error);
@@ -67,7 +68,7 @@ function AddProduct() {
               icon="checkmark"
               onClick={() => {
                 setOpen(false);
-                confirmProduct();
+                confirmProduct(user.sub);
               }}
               positive
             />

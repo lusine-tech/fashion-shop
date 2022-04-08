@@ -1,9 +1,14 @@
-.product-icon{
-    width: 40px;
-    height: auto;
-    border-radius: 50%;
+.ui.image.product-icon{
+    width: auto;
+    height: 90px;
+     
+    }
+
+.grid-table {
+    position: relative;
 }
 
-.grid-table{
-    height: 80px;
+.grid-table>.row{
+    height: 120px;
 }
+
