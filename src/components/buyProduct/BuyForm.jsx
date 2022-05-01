@@ -1,12 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-import { useForm } from "react-hook-form";
 import {
   Form,
   Input,
-  TextArea,
-  Button,
-  Select,
   Radio,
 } from "semantic-ui-react";
 
@@ -18,11 +14,13 @@ const options = [
 
 const FormFieldError = ({ userName, changeOptions }) => {
   function handleChange(event) {
+    
     changeOptions({ [event.target.name]: event.target.value });
+  
   }
   return (
     <Form>
-      {/* <Form.Group widths='equal'> */}
+   
       <Form.Field
         id="form-input-control-full-name"
         control={Input}
@@ -37,7 +35,9 @@ const FormFieldError = ({ userName, changeOptions }) => {
         label="Address"
         placeholder="Address"
         name="address"
-        onChange={(e) => handleChange(e)}
+        onChange={(e) => {
+          handleChange(e)
+        }}
       />
       <Form.Field
         id="form-input-control-phone-number"
@@ -45,22 +45,26 @@ const FormFieldError = ({ userName, changeOptions }) => {
         label="Phone number"
         placeholder="Phone number"
         name="phone"
-        onChange={(e) => handleChange(e)}
+        type = "number"
+        onChange={(e) => {
+          handleChange(e)
+        }}
       />
 
       <Form.Field>
         <Radio
-          label="Pay Buy Cash"
+          label="Pay By Cash"
           name="paymentMethod"
           value="cash"
           checked={true}
-          onChange={(e) => handleChange(e)}
+          onChange={(e) => {
+            handleChange(e)
+          }}
         />
       </Form.Field>
       <Form.Field>
-        <Radio label="Pay Buy Card" name="card" value="card" readOnly />
+        <Radio label="Pay By Card" name="card" value="card" readOnly />
       </Form.Field>
-      {/* </Form.Group> */}
     </Form>
   );
 };

@@ -1,0 +1,28 @@
+.ui.inverted.vertical.segment{
+    background-color: #BC6C74;
+    
+}
+
+.six.wide.column,.four.wide.column{
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+}
+
+.ui.link.list a.item {
+    color:#fff;
+    font-weight: 600;
+    
+}
+ 
+.ui.link.list a.item:hover {
+color:#EED7D3;
+
+}
+
+
+.ui.stackable.divided:not(.vertically).grid>.row>.column {
+    display: flex;
+    justify-content: center;
+} 
+

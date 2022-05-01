@@ -27,11 +27,12 @@ export async function getOrders(user_id, token) {
 
 export async function getAllOrders(user_id, token) {
   try {
+    console.log("user_id", user_id);
     const response = await fetch(`${apiURL}order/get-all`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
-        user_id: user_id,
+        userId: user_id,
       },
     });
     return await response.json();
@@ -46,7 +47,7 @@ export async function getOrderByStatus(user_id, token, status) {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
-        user_id: user_id,
+        userId: user_id,
         status: status,
       },
     });
@@ -85,7 +86,7 @@ export async function authoriseUser(user, token) {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json;charset=utf-8",
-       
+        userId: user,
       },
       body: JSON.stringify({
         id,
@@ -130,6 +131,8 @@ export async function confirmOrder(user, product, token, option) {
 }
 
 export async function confirmAddProduct(productObj, userId, token) {
+  console.log("userId ", userId);
+  console.log("productObj", productObj);
   try {
     const response = await fetch(`${apiURL}product`, {
       method: "POST",
@@ -147,30 +150,57 @@ export async function confirmAddProduct(productObj, userId, token) {
 }
 
 export async function imgUpdate(productId, file, token, userId) {
-    console.log("imgUpdatefile", file);
+  console.log("imgUpdatefile", file);
   const formData = new FormData();
-    formData.append("image", file
+  formData.append(
+    "image",
+    file
     // { type: "multipart/form-data" }
-    );
+  );
 
   for (var key of formData.entries()) {
     console.log(key[0] + ", " + key[1]);
   }
 
-
   try {
     const response = await fetch(`${apiURL}image/add/${productId}`, {
       method: "POST",
       headers: {
-        // Authorization: `Bearer ${token}`,
-        // "Content-Type": "multipart/form-data",
         userId: userId,
       },
-
       body: formData,
     });
     return response.json();
   } catch (error) {
     console.log("sxalPost", error);
+  }
+}
+export async function isUserExists(userId, token) {
+  try {
+    const response = await fetch(`${apiURL}user/user-id`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json;charset=utf-8",
+        userId: userId,
+      },
+    });
+    return response.json();
+  } catch (error) {
+    console.log("sxalPost", error);
+  }
+}
+export async function getOrdersByUserId(user_id, token) {
+  try {
+    const response = await fetch(`${apiURL}order/user-order`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        userd: user_id,
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    console.log("wrong", error);
   }
 }

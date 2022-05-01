@@ -2,6 +2,8 @@
 .ui.cards>.card>.image>img {
     width: 100px;
     background:none;
+    padding: 15px;
+    
 }
 
 .ui.card>.buy-info{
@@ -9,4 +11,11 @@
     position: relative;
     height: 60px;
     width: 100%;
+    border-radius: 30px;
+    
 }
+.ui.cards {
+    border: 1px solid #BC6C74;
+}
+
+

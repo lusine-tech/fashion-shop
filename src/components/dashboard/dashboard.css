@@ -1,3 +1,11 @@
 .dashboard{
-margin-top: 200px;
+margin-top: 80px;
+border: 2px solid #BC6C74;
+padding: 20px;
+border-radius: 20px;
 }
+
+.ui.green.button {
+    background-color: #BC6C74;
+}
+

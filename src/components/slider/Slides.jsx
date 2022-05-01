@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import slidesData from "../../services/slideData";
 import "./slide.css";
 import { Button, Icon } from "semantic-ui-react";
@@ -13,6 +13,11 @@ function Slides() {
   function handlePrev() {
     index !== 0 ? setIndex(index - 1) : setIndex(slideData.length - 1);
   }
+  useEffect(() => {
+    const slideId = setInterval(handleNext, 4000);
+    return () => clearInterval(slideId);
+  }, [index]);
+
 
   return (
     <div>
@@ -22,9 +27,7 @@ function Slides() {
           <Button
             data-testid="button-prev"
             className="small left"
-            onClick={() => {
-              handlePrev();
-            }}
+            onClick={handlePrev}
           >
             <Icon name="chevron left" />
           </Button>
@@ -32,19 +35,14 @@ function Slides() {
           <Button
             data-testid="button-next"
             className="small right"
-            onClick={() => {
-              handleNext();
-            }}
+            onClick={handleNext}
           >
             <Icon name="chevron right" />
           </Button>
         </div>
-        <div className="slideDescription">
-          <p data-testid="text">{slideData[index].text}</p>
-        </div>
+        <div className="slideDescription"></div>
       </div>
     </div>
   );
 }
-
 export default Slides;

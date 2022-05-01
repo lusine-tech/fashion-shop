@@ -1,10 +1,13 @@
 import React from "react";
 import { createMedia } from "@artsy/fresnel";
 import { Icon, Image, Menu, Sidebar, Dropdown } from "semantic-ui-react";
-import { Link, Outlet } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import "./Header.css";
+import "./header.css";
 import { nanoid } from "nanoid";
+import { useEffect, useState } from "react";
+import { isUserExists, authoriseUser } from "../../services/api";
+import logo from "../../img/logo.png";
 
 const AppMedia = createMedia({
   breakpoints: {
@@ -23,20 +26,29 @@ const NavBarMobile = (props) => {
 
   return (
     <Sidebar.Pushable>
-      <Sidebar
-        as={Menu}
-        animation="overlay"
-        icon="labeled"
-        items={leftItems}
-        inverted
-        vertical
-        visible={visible}
-        key={nanoid()}
-      />
-      <Sidebar.Pusher dimmed={visible} onClick={onPusherClick}>
+      <Sidebar.Pusher id="left-pusher" dimmed={visible} onClick={onPusherClick}>
+        <Sidebar
+          key={nanoid()}
+          as={Menu}
+          animation="overlay"
+          icon="labeled"
+          inverted
+          items={leftItems}
+          vertical
+          visible={visible}
+        />
+      </Sidebar.Pusher>
+
+      <Sidebar.Pusher>
         <Menu fixed="top" inverted>
           <Menu.Item key={nanoid()}>
-            <Image size="mini" src="https://react.semantic-ui.com/logo.png" />
+            <Image
+              as={Link}
+              to="/"
+              size="mini"
+              src={logo}
+              className="logoIcon"
+            />
           </Menu.Item>
           <Menu.Item onClick={onToggle} key={nanoid()}>
             <Icon name="sidebar" />
@@ -67,7 +79,7 @@ const NavBarDesktop = (props) => {
   return (
     <Menu fixed="top" inverted>
       <Menu.Item key={nanoid()}>
-        <Image size="mini" src="https://react.semantic-ui.com/logo.png" />
+        <Image as={Link} to="/" size="mini" src={logo} className="logoIcon" />
       </Menu.Item>
 
       {leftItems.map((item, index) => (
@@ -88,53 +100,48 @@ const NavBarDesktop = (props) => {
   );
 };
 
-class NavBar extends React.Component {
-  state = {
-    visible: false,
+function NavBar({ leftItems, rightItems }) {
+  const [visible, setVisible] = useState(false);
+
+  const handlePusher = () => {
+    if (visible) setVisible(false);
   };
+  const handleToggle = () => setVisible(!visible);
 
-  handlePusher = () => {
-    const { visible } = this.state;
+  return (
+    <div className="customHeader">
+      <Media at="mobile">
+        <NavBarMobile
+          leftItems={leftItems}
+          onPusherClick={handlePusher}
+          onToggle={handleToggle}
+          rightItems={rightItems}
+          visible={visible}
+        ></NavBarMobile>
+      </Media>
 
-    if (visible) this.setState({ visible: false });
-  };
-
-  handleToggle = () => this.setState({ visible: !this.state.visible });
-
-  render() {
-    const { leftItems, rightItems } = this.props;
-    const { visible } = this.state;
-
-    return (
-      <div className="customHeader">
-        <Media at="mobile">
-          <NavBarMobile
-            leftItems={leftItems}
-            onPusherClick={this.handlePusher}
-            onToggle={this.handleToggle}
-            rightItems={rightItems}
-            visible={visible}
-          ></NavBarMobile>
-        </Media>
-
-        <Media greaterThan="mobile">
-          <NavBarDesktop leftItems={leftItems} rightItems={rightItems} />
-        </Media>
-      </div>
-    );
-  }
+      <Media greaterThan="mobile">
+        <NavBarDesktop leftItems={leftItems} rightItems={rightItems} />
+      </Media>
+    </div>
+  );
 }
-
 const leftItems = [
   { as: Link, to: "/", content: "Home", key: "home" },
   { as: Link, to: "/products", content: "Products", key: "products" },
-  // { as: Link, to: "/review", content: "Review", key: "review" },
 ];
 
 const rightItems = [{ as: Link, to: "/login", content: "Login", key: "login" }];
 
 function Header() {
-  const { user, isAuthenticated, logout } = useAuth0();
+  const {
+    user,
+    isAuthenticated,
+    logout,
+    error,
+    isLoading,
+    getAccessTokenSilently,
+  } = useAuth0();
 
   rightItems.length = 0;
   if (isAuthenticated) {
@@ -142,7 +149,7 @@ function Header() {
       children: [
         <Image avatar spaced="right" src={user.picture} key={nanoid()} />,
         <Dropdown pointing="top left" text={user.name} key="userDropdown">
-          <Dropdown.Menu key="userDropdownMenu">
+          <Dropdown.Menu key="userDropdownMenu" id="drop-down">
             <Dropdown.Item text={user.name} key={user.name} />
             <Dropdown.Item
               as={Link}
@@ -166,6 +173,32 @@ function Header() {
     });
   }
 
+  useEffect(() => {
+    (async () => {
+      if (
+        isAuthenticated &&
+        localStorage.getItem("autoriseUser") !== user.nickname
+      ) {
+        let authorised;
+        const isExist = await isUserExists(user.sub);
+        console.log("isExist", isExist);
+        if (
+          !isExist ||
+          (isExist.httpStatus === "OK" && isExist.info.exists === "false")
+        ) {
+          const token = await getAccessTokenSilently();
+          authorised = await authoriseUser(user, token);
+        }
+        if (
+          authorised ||
+          (isExist.httpStatus === "OK" && isExist.info.exists === "true")
+        ) {
+          localStorage.setItem("autoriseUser", user.nickname);
+        }
+      }
+    })();
+  }, [isAuthenticated]);
+
   return (
     <MediaContextProvider>
       <NavBar leftItems={leftItems} rightItems={rightItems}>
@@ -174,5 +207,6 @@ function Header() {
     </MediaContextProvider>
   );
 }
+
 
 export default Header;

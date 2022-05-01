@@ -1,64 +1,56 @@
 import {
   getOrders,
-  getOrderByStatus,
   authoriseUser,
   getProducts,
+  getAllOrders,
   changeOrderStatus,
-  imgUpdate
+  imgUpdate,
 } from "../../services/api";
 import { useAuth0 } from "@auth0/auth0-react";
 import { domainName } from "../../config";
-import { Table, Icon, Message } from "semantic-ui-react";
+import { Message } from "semantic-ui-react";
 import { useEffect, useState } from "react";
 import AddProduct from "../products/AddProduct";
 import Tabs from "../tabs/Tabs";
 import { ADMIN, UNPAID } from "../../services/constants";
-import DataTable from "../dataTable/DataTable";
-
-
-
+import DataTableForUsser from "../dataTable/DataTableForUsser"; 
+import "./dashboard.css";
 
 function Dashboard() {
-
-
-  const { error, isAuthenticated, isLoading, user, getAccessTokenSilently } =
-    useAuth0();
+  const { user, getAccessTokenSilently } = useAuth0();
   const [orderList, setOrderList] = useState([]);
-
   const [adminData, setAdminData] = useState({});
   const [responseInfo, setResponseInfo] = useState("");
-
 
   async function orderShow() {
     try {
       const token = await getAccessTokenSilently();
       let data = null;
-      // let productData=null;
 
       if (user && user[`${domainName}roles`].includes(ADMIN)) {
         const dataResult = await Promise.all([
           getProducts(),
-          getOrderByStatus(user.sub, token, UNPAID),
+          getAllOrders(user.sub, token, UNPAID),
         ]);
-          console.log("dataResult", dataResult);
-        if (dataResult && dataResult[1] && dataResult[1].status === 401)  {
+
+        if (dataResult && dataResult[1] && dataResult[1].status === 401) {
           const authorised = await authoriseUser(user, token);
         } else {
-         
-        setAdminData((adminData) => ({
-          ...adminData,
-          allProducts: dataResult[0],
-          pendingProducts: dataResult[1],
-        }));
-      }
+          setAdminData((adminData) => ({
+            ...adminData,
+            allProducts: dataResult[0],
+            pendingProducts: dataResult[1],
+          }));
+        }
       } else {
         data = await getOrders(user.sub, token);
+
         if (data && Array.isArray(data)) {
           if (data.length !== 0) setOrderList(data);
         } else if (data && data.status === 401) {
           const authorised = await authoriseUser(user, token);
         } else {
-          console.log("paka");
+          console.log("sxal");
         }
       }
     } catch (error) {
@@ -80,33 +72,29 @@ function Dashboard() {
         order_id,
         status
       );
-      console.log("changeResult", changeResult);
+      orderShow();
     } catch (error) {
       console.log("sxal es arel");
     }
   }
 
-    async function uploadImg(file, productId) {
-      try {
-        const token = await getAccessTokenSilently();
-        const responseImg = await imgUpdate(productId, file, token, user.sub);
-        console.log(responseImg);
+  async function uploadImg(file, productId) {
+    try {
+      const token = await getAccessTokenSilently();
+      const responseImg = await imgUpdate(productId, file, token, user.sub);
 
-        if (responseImg.httpStatus && responseImg.httpStatus==="OK") {
-          
-          setResponseInfo(responseImg.message);
-        }
-      } catch (error) {
-        console.log("something went wrong", error);
+      if (responseImg.httpStatus && responseImg.httpStatus === "OK") {
+        setResponseInfo(responseImg.message);
       }
-
-      console.log("file", file);
+    } catch (error) {
+      console.log("something went wrong", error);
     }
+  }
 
-    function  handleDismiss() {
-      setResponseInfo("")
-    }
-
+  function handleDismiss() {
+    setResponseInfo("");
+  }
+  console.log("adminData", adminData);
   return (
     <div className="dashboard ui container">
       {responseInfo.length > 0 ? (
@@ -124,10 +112,11 @@ function Dashboard() {
             pendingProducts={pendingProducts}
             allProducts={allProducts}
             changeStatus={changeStatus}
+            setResponseInfo={setResponseInfo}
           />
         </>
       ) : (
-        <DataTable list={orderList} />
+        <DataTableForUsser list={orderList} />
       )}
     </div>
   );
